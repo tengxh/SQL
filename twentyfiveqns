@@ -1,0 +1,25 @@
+/* codes contains my SQL queries for questions from https://towardsdatascience.com/twenty-five-sql-practice-exercises-5fc791e24082 
+Language: mySQL */
+
+/* 1) Cancellation Rates - a query to return the publication and cancellation rate for each user */ 
+/* Step 1 - Create tables */
+CREATE TABLE users (user_id INT, 
+                    action VARCHAR(10), 
+                    date DATE) ;
+
+
+INSERT INTO users 
+(user_id, action, date) 
+VALUES (1,'start','01-01-20'),
+(1,'cancel', ('01-02-20')),
+(1,'cancel', ('01-02-20')), 
+(2,'start', ('01-03-20')), 
+(2,'publish', ('01-04-20')), 
+(3,'start', ('01-05-20')), 
+(3,'cancel', ('01-06-20')), 
+(1,'start', ('01-07-20')), 
+(1,'publish', ('01-08-20'));
+
+
+
+
