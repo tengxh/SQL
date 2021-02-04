@@ -44,4 +44,26 @@ VALUES (5, 2, 10,'12-2-20'),
 (1, 4, 5, '16-2-20');
 
 /* Step 2 - Create output */ 
+/*complete in one query - 
 
+SELECT r.receiver, r.income-r.outflow AS net_change FROM
+(SELECT i.receiver, IFNULL(i.inflow,0) AS income, IFNULL(o.outflow,0) AS outflow
+FROM (SELECT receiver, SUM(amount) AS inflow
+FROM transactions
+GROUP BY receiver) AS i
+LEFT OUTER JOIN (SELECT sender, SUM(amount) AS outflow
+FROM transactions
+GROUP BY sender) AS o
+ON i.receiver=o.sender
+
+UNION
+
+SELECT o.sender, IFNULL(i.inflow,0) AS income, IFNULL(o.outflow,0) AS outflow
+FROM (SELECT receiver, SUM(amount) AS inflow
+FROM transactions
+GROUP BY receiver) AS i
+RIGHT OUTER JOIN (SELECT sender, SUM(amount) AS outflow
+FROM transactions
+GROUP BY sender) AS o
+ON i.receiver=o.sender) AS r
+ORDER BY (net_change) DESC;
