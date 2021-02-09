@@ -128,3 +128,65 @@ FROM user2
 GROUP BY user2.user_id) AS u5
 ON u5.user_id = u4.user_id AND u5.seq=u4.seq
 ;
+
+///////* 5)  Super users - A company defines its super users as those who have made at least two transactions.
+write a query to return, for each user, the date when they become a super user, ordered by oldest super users first. 
+Users who are not super users should also be present in the table.
+*////////////
+
+CREATE TABLE superuser 
+(user_id INT, product_id INT, date DATE) ;
+
+INSERT INTO superuser 
+(user_id, product_id, date) 
+VALUES (1, 101, '20-2-12'), 
+(2, 105, '20-2-13-20'), 
+(1, 111, '20-2-14-20' ), 
+(3, 121, '20-2-15-20'), 
+(1, 101, '20-2-16-20'), 
+(2, 105, '20-2-17-20' ),
+(4, 101, '20-2-16-20'), 
+(3, 105, '20-2-15-20');
+
+
+SELECT su1.user_id, su1.superuser_date FROM
+(SELECT su.user_id, su.times, 
+CASE WHEN su.times>=2 AND su.times1=2 THEN su.date ELSE NULL END AS superuser_date
+FROM (SELECT superuser.*, COUNT(*) OVER(PARTITION BY user_id) AS times, 
+      row_number() OVER(PARTITION BY user_id ORDER BY date) AS times1
+FROM superuser) AS su) AS su1
+WHERE (su1.superuser_date IS NOT NULL AND su1.times>=2) OR 
+(su1.superuser_date IS NULL AND su1.times<2)
+ORDER BY su1.superuser_date;
+
+///////* 6)  Content recommendation (hard) - Using the following two tables, 
+write a query to return page recommendations to a social media user based on the pages that their friends have liked, 
+but that they have not yet marked as liked. Order the result by ascending user ID
+*////////////
+CREATE TABLE friends 
+(user_id INT, friend INT) ;
+
+INSERT INTO friends 
+(user_id, friend) 
+VALUES(1, 2), (1, 3), (1, 4), (2, 1), (3, 1), (3, 4), (4, 1), (4, 3);
+
+CREATE TABLE likes 
+(user_id INT, page_likes VARCHAR(1)) ;
+
+INSERT INTO likes 
+(user_id, page_likes) 
+VALUES(1, 'A'), (1, 'B'), (1, 'C'), (2, 'A'), (3, 'B'), (3, 'C'), (4, 'B');
+
+SELECT DISTINCT f2.user_id, f2.page_likes AS recommended_page FROM 
+(SELECT *
+FROM 
+(SELECT f.friend, f.user_id, l.page_likes
+FROM friends AS f
+INNER JOIN likes AS l
+ON f.friend = l.user_id) AS f1
+WHERE NOT EXISTS (SELECT * FROM likes AS l1
+                 WHERE l1.user_id=f1.user_id AND l1.page_likes=f1.page_likes)) AS f2;
+
+///////* 7)  Mobile and web visitors - With the following two tables, return the fraction of users who only visited mobile, only visited web, and visited both. */////
+
+
