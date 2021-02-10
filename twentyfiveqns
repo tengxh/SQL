@@ -188,5 +188,71 @@ WHERE NOT EXISTS (SELECT * FROM likes AS l1
                  WHERE l1.user_id=f1.user_id AND l1.page_likes=f1.page_likes)) AS f2;
 
 ///////* 7)  Mobile and web visitors - With the following two tables, return the fraction of users who only visited mobile, only visited web, and visited both. */////
+CREATE TABLE mobile 
+(user_id INT, page_url VARCHAR(1)) ;
 
+INSERT INTO mobile 
+(user_id, page_url) 
+VALUES(1, 'A'), (2, 'B'), (3, 'C'), (4, 'A'), (9, 'B'), (2, 'C'), (10, 'B');
+
+CREATE TABLE web 
+(user_id INT, page_url VARCHAR(1)) ;
+
+INSERT INTO web 
+(user_id, page_url) 
+VALUES(6, 'A'), (2, 'B'), (3, 'C'), (7, 'A'), (4, 'B'), (8, 'C'), (5, 'B');
+
+ALTER TABLE mobile  
+ADD type VARCHAR(10) NOT NULL DEFAULT "mobile";
+
+ALTER TABLE web  
+ADD type VARCHAR(10) NOT NULL DEFAULT "web";
+
+CREATE TABLE visitors AS
+(SELECT DISTINCT visitors1.user_id, CASE WHEN visitors1.count=2 THEN "both" ELSE visitors1.type END AS type1
+FROM
+(SELECT visitors.user_id, visitors.type, COUNT(*) OVER(PARTITION BY user_id) AS count
+FROM (SELECT DISTINCT user_id,type FROM web UNION SELECT user_id,type  FROM mobile) AS visitors) AS visitors1);
+
+
+SELECT visits1.publish_count/u.start_count AS publish_rate, u.cancel_count/u.start_count AS cancel_rate
+FROM (SELECT type1,
+SUM(CASE WHEN type1 = 'mobile' THEN 1 ELSE 0 END) AS mobile_count,
+SUM(CASE WHEN type1 = 'web' THEN 1 ELSE 0 END) AS web_count,
+SUM(CASE WHEN type1 = 'both' THEN 1 ELSE 0 END) AS both_count
+FROM visitors
+GROUP BY type1) AS visits;
+
+SELECT v2.type1, v2.count/SUM(v2.count) OVER() AS total_count
+FROM
+(SELECT v1.type1, SUM(v1.count) AS count FROM
+(SELECT visitors.*, 1 AS count
+FROM visitors) AS v1
+GROUP BY v1.type1) AS v2
+GROUP BY v2.type1;
+
+//* though end format is a little different from what is required!! :X *//
+
+//////* 8) Upgrade rate by product action (hard)
+
+//////* 9) Most friended
+Return a list of users and their corresponding friend count. 
+Order the result by descending friend count, and in the case of a tie, by ascending user ID. Assume that only unique friendships are displayed *//
+CREATE TABLE friends
+(user1 INT, user2 INT);
+
+INSERT INTO friends (user1, user2) 
+VALUES (1, 2), (1, 3), (1, 4), (2, 3);
+
+CREATE TABLE  temp AS
+(SELECT user1 AS user_id
+FROM friends
+UNION ALL
+SELECT user2 AS user_id
+FROM friends);
+
+SELECT user_id, count(*) AS friend_count
+FROM temp
+GROUP BY user_id
+ORDER BY friend_count DESC;
 
