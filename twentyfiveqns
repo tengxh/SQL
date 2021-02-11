@@ -256,3 +256,42 @@ FROM temp
 GROUP BY user_id
 ORDER BY friend_count DESC;
 
+
+//////* 10) Project aggregation (hard) - NOT MY SOLUTION - TOOK REF FROM HACKERRANK FORUM ANSWERS!!! (hellosolvur)
+The projects table contains three columns: task_id, start_date, and end_date. 
+The difference between end_date and start_date is 1 day for each row in the table. 
+If task end dates are consecutive they are part of the same project. Projects do not overlap.
+Write a query to return the start and end dates of each project, and the number of days it took to complete. 
+Order by ascending project duration, and descending start date in the case of a tie. *//
+
+CREATE TABLE projects
+(task_id INT, start_date date, end_date date);
+
+INSERT INTO projects (task_id, start_date,end_date)
+VALUES
+(1, '20-10-01', '20-10-02'), 
+(2, '20-10-02', '20-10-03'), 
+(3, '20-10-03','20-10-04' ), 
+(4, '20-10-13','20-10-14' ), 
+(5, '20-10-14' , '20-10-15'), 
+(6, '20-10-28', '20-10-29'), 
+(7, '20-10-30', '20-10-31');
+
+SELECT Start_Date, MIN(End_Date), datediff(MIN(end_date),start_date)
+FROM 
+/* Choose start dates that are not end dates of other projects (if a start date is an end date, it is part of the same project) */
+    (SELECT start_date FROM projects WHERE start_date NOT IN (SELECT end_date FROM projects)) a,
+/* Choose end dates that are not end dates of other projects */
+    (SELECT end_date FROM projects WHERE end_date NOT IN (SELECT start_date FROM projects)) b
+/* At this point, we should have a list of start dates and end dates that don't necessarily correspond with each other */
+/* This makes sure we only choose end dates that fall after the start date, and choosing the MIN means for the particular start_date, 
+we get the closest end date that does not coincide with the start of another task */
+where start_date < end_date
+GROUP BY start_date
+/* min (end_date) = the minium end date within each same start date group. thus find date diff with this min end date */
+ORDER BY datediff(start_date, MIN(end_date)) DESC, start_date;
+
+
+
+
+
