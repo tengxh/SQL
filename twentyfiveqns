@@ -373,4 +373,25 @@ GROUP BY t1.hacker_id, t1.name
 HAVING total_score>0
 ORDER BY total_score DESC, t1.hacker_id;
 
+/* qn 14 */
+
+CREATE TABLE employee  
+(id INT, pay_month INT, salary INT); 
+
+INSERT employee 
+(id, pay_month, salary)
+VALUES
+(1, 1, 20),
+(2, 1, 20),
+(1, 2, 30),
+(2, 2, 30),
+(3, 2, 40),
+(1, 3, 40),
+(3, 3, 60),
+(1, 4, 60),
+(3, 4, 70);
+
+SELECT e.id, e.pay_month, e.salary, 
+SUM(e.salary) OVER(PARTITION BY e.id ORDER BY e.pay_month) AS cumulative_sum
+FROM (SELECT * FROM employee HAVING employee.pay_month<4)  AS e;
 
