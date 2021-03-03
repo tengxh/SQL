@@ -395,3 +395,95 @@ SELECT e.id, e.pay_month, e.salary,
 SUM(e.salary) OVER(PARTITION BY e.id ORDER BY e.pay_month) AS cumulative_sum
 FROM (SELECT * FROM employee HAVING employee.pay_month<4)  AS e;
 
+/* qn 15 - with guidance
+Write a query to return the scores of each team in the teams table after all matches displayed in the matches table. 
+Points are awarded as follows: zero points for a loss, one point for a tie, and three points for a win. 
+The result should include team name and points, and be ordered by decreasing points. In case of a tie, order by alphabetized team name.*/
+
+CREATE TABLE teams  
+(team_id INT, team_name VARCHAR(20)); 
+
+INSERT teams 
+(team_id,team_name)
+VALUES
+(1, 'New York'),
+(2, 'Atlanta'),
+(3, 'Chicago'),
+(4, 'Toronto'),
+(5, 'Los Angeles'),
+(6, 'Seattle');
+
+CREATE TABLE matches  
+(match_id INT, host_team INT, guest_team INT, host_goals INT, guest_goals INT); 
+
+INSERT matches 
+(match_id, host_team, guest_team, host_goals, guest_goals)
+VALUES
+(1, 1, 2, 3, 0),
+(2, 2, 3, 2, 4),
+(3, 3, 4, 4, 3),
+(4, 4, 5, 1, 1),
+(5, 5, 6, 2, 1),
+(6, 6, 1, 1, 2);
+
+CREATE TABLE points AS (SELECT m.*, 
+CASE WHEN m.host_goals>m.guest_goals THEN 3 WHEN m.host_goals=m.guest_goals THEN 1 ELSE 0 END AS host_points , 
+CASE WHEN m.host_goals<m.guest_goals THEN 3 WHEN m.host_goals=m.guest_goals THEN 1 ELSE 0 END AS guest_points 
+FROM matches AS m);
+
+SELECT t.team_name,p.host_points + p1.guest_points AS total_points
+FROM teams AS t
+JOIN points AS p
+ON  p.host_team=t.team_id 
+JOIN points AS p1
+on p1.guest_team = t.team_id
+ORDER BY total_points DESC;
+
+/* qn 16 - with guidance
+From the following table, write a query to display the ID and name of customers who bought products A and B, but didn’t buy product C, ordered by ascending customer ID.*/ 
+
+CREATE TABLE customers  
+(id INT, name VARCHAR(20)); 
+
+INSERT customers 
+(id,name)
+VALUES
+(1, 'Daniel'),
+(2, 'Diana'),
+(3, 'Elizabeth'),
+(4, 'John');
+
+CREATE TABLE orders  
+(order_id INT, customer_id INT, product_name VARCHAR(1)); 
+
+INSERT orders 
+(order_id,customer_id,product_name)
+VALUES
+(1, 1, 'A'),
+(2, 1, 'B'),
+(3, 2, 'A'),
+(4, 2, 'B'),
+(5, 2, 'C'),
+(6, 3, 'A'), 
+(7, 3, 'A'),
+(8, 3, 'B'),
+(9, 3, 'D');
+
+SELECT *
+FROM customers AS c
+WHERE c.id IN (SELECT DISTINCT o.customer_id
+FROM orders AS o
+WHERE o.product_name="A") AND
+c.id IN (SELECT DISTINCT o1.customer_id
+FROM orders AS o1
+WHERE o1.product_name="B") AND
+c.id NOT IN (SELECT DISTINCT o2.customer_id
+FROM orders AS o2
+WHERE o2.product_name="C")
+ORDER BY c.id;
+
+
+/* skip qn 17 and 18 since they are from hackerrank and i've tried it before */ 
+
+/* qn 19 */ 
+
