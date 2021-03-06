@@ -6,5 +6,3 @@ A github repository that allows me to track and store the SQL queries that I've 
 - Practicing 25 questions found on towardsdatascience
 - Credit: https://towardsdatascience.com/twenty-five-sql-practice-exercises-5fc791e24082
 
-2) HackerRank SQL - Hackerrank SQL questions for practice
-- Credit: https://www.hackerrank.com/domains/sql
