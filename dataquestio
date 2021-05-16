@@ -1,0 +1,37 @@
+/* My answers for questions from : https://www.dataquest.io/blog/sql-interview-questions/ */ 
+
+/* QUESTION 1 
+Given the table below, write a SQL query that retrieves the personal data about alumni who scored above 16 on their calculus exam. */ 
+
+SELECT a*
+FROM alumni AS a
+JOIN evaluation AS e
+ON e.student_id = a.student_id
+JOIN curricula AS c
+ON c.class_id = e.class_id
+WHERE c.class_name = 'calculus' AND e.grade >=16;
+
+
+/* Question 2
+We’ll work with the beverages table. Its first rows are given below 
+Write a query to extract only beverages where fruit_pct is between 35 and 40 (including both ends). */ 
+
+
+SELECT b.*
+FROM beverages AS b
+WHERE b.fruit_pct >= 35 AND b.fruit_pct <=40
+
+/* Question 3
+ Write a query to extract only beverages whose contributor only has one name */ 
+ /* ANSWER IS FROM WEBSITE */ 
+ 
+ SELECT *
+  FROM beverages
+ WHERE contributed_by NOT LIKE '% %';
+
+/* QUESTION 4
+Write a query that finds the average fruit_pct by contributor and displays it ascending order. */
+
+SELECT AVG(fruit_pct), b.contributed_by
+FROM beverages AS b
+GROUP BY b.contributed_by;
