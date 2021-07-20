@@ -1,0 +1,40 @@
+/* [Robinhood - Easy] Assume you are given the below tables for trades and users. Write a query to list the top 3 cities which had the highest number of completed orders. */ 
+
+SELECT u.city AS city, COUNT(*) AS completed_orders
+FROM trades AS t
+JOIN users AS u
+ON t.user_id = u.user_id
+GROUP BY u.city
+HAVING t.status='complete'
+ORDER BY completed_orders DESC
+LIMIT 3;
+
+/* [Facebook - Easy] Assume you have the below events table on app analytics. Write a query to get the click-through rate per app in 2019. */ 
+/*assume that click thru rate = no of click thru / no of impressions */
+
+SELECT e1.app_id, e1.click_count/e1.impression_count AS click_thru_rate
+FROM
+(SELCT e.app_id, 
+SUM(CASE WHEN e.event_id = 'impression' THEN 1 ELSE 0 END) AS impression_count,
+SUM(CASE WHEN e.event_id = 'click' THEN 1 ELSE 0 END) AS click_count,
+FROM events AS e
+GROUP BY e.app_id
+HAVING YEAR(timestamp) = 2019) AS e1;
+
+/* NTS: Dont need subquery too, can just calculate the click thru rate via one query too */ 
+
+/* [Uber - Easy] Assume you are given the below table for spending activity by product type. 
+Write a query to calculate the cumulative spend for each product over time in chronological order. */ 
+
+SELECT t.date, t.pdt_count
+SUM(t.pdt_count) over (order by t.date)
+FROM
+(SELECT date, count(order_id) AS pdt_count
+FROM total_trans AS tt
+GROUP BY date, product_id) AS t; 
+
+/* [Snapchat - Easy] Assume you have the below tables on sessions that users have, and a users table. Write a query to get the active user count of daily cohorts. */
+
+
+
+
