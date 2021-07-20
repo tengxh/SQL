@@ -9,3 +9,7 @@ A github repository that allows me to track and store the SQL queries that I've 
 2) dataquestio
 - Credit: https://www.dataquest.io/blog/sql-interview-questions/
 
+
+3) nicksingh.com - 30 SQL and Database Design Questions From Data Science Interviews At Top Tech Companies
+- Credit: https://www.nicksingh.com/posts/30-sql-and-database-design-questions-from-real-data-science-interviews
+
