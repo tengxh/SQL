@@ -33,8 +33,58 @@ FROM
 FROM total_trans AS tt
 GROUP BY date, product_id) AS t; 
 
-/* [Snapchat - Easy] Assume you have the below tables on sessions that users have, and a users table. Write a query to get the active user count of daily cohorts. */
+/* [Facebook - Easy] Assume you are given the below tables on users and user posts. Write a query to get the distribution of the number of posts per user.
+*/ 
 
+SELECT date, user_id, COUNT(*) count_per_user_per_day
+FROM posts AS p
+GROUP BY user_id,date;
 
+SELECT user_id, COUNT(*)
+FROM posts 
+GROUP BY user_id
 
+/* [Opendoor - Easy] Assume you are given the below table on house prices from various zip codes that have been listed. 
+Write a query to get the top 5 zip codes by market share of house prices for any zip code with at least 10000 houses. */
+
+SELECT DISTINCT h.zip_code, (h.sum_price/(SELECT SUM(price) FROM housing)) AS share
+FROM
+(SELECT zip_code, price, COUNT(zip_code) OVER(PARTITION BY zip_code) AS count, 
+ SUM(price) OVER(PARTITION BY zip_code) sum_price
+FROM housing) AS h
+WHERE count >=100000
+ORDER BY share
+LIMIT 5;
+
+/* [Etsy - Easy] Assume you are given the below table on transactions from users for purchases. 
+Write a query to get the list of customers where their earliest purchase was at least $50. */
+
+SELECT user_id, MIN(spend)
+FROM user_transactions AS ut
+GROUP BY user_id
+HAVING MIN(spend)>=50;
+
+/* [Twitter - Easy] Assume you are given the below table on tweets by each user over a period of time. 
+Calculate the 7-day rolling average of tweets by each user for every date. */ 
+
+SELECT *,
+      avg(t.no_of_tweets) OVER(
+          PARTITION BY user_id 
+          ORDER BY tweet_date
+          ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) 
+          AS 7day_moving_average
+FROM 
+(SELECT *, COUNT(tweet_id) OVER(PARTITION BY user_id) AS no_of_tweets FROM tweets) AS t;
+
+/* [Stitch Fix - Easy]  Assume you are given the below table on transactions from users. 
+Write a query to get the number of users and total products bought per latest transaction date where each user is bucketed into their latest transaction date. */ 
+
+SELECT user_id, SUM(spend)
+FROM user_transactions AS t1
+WHERE (t1.user_id, t1.transaction_date) IN 
+(SELECT user_id,transaction_date FROM
+(SELECT *, (dense_rank() OVER(PARTITION BY user_id ORDER BY transaction_date DESC)) AS position 
+FROM user_transactions) AS t
+WHERE t.position = 1)
+GROUP BY user_id; 
 
