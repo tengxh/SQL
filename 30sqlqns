@@ -88,3 +88,17 @@ FROM user_transactions) AS t
 WHERE t.position = 1)
 GROUP BY user_id; 
 
+/* [Amazon - Easy] Assume you are given the below table on customer spend amounts on products in various categories. 
+Calculate the top three most bought item within each category in 2020. */
+ 
+SELECT p2.product_id FROM
+(SELECT p1.product_id, row_number() over(partition by (p1.category_id, p1.product_id) order by p1.count DESC) AS count_rank
+FROM 
+(SELECT p.category_id, p.product_id, COUNT(*) AS count
+FROM product_spend AS p
+GROUP BY p.product_id
+HAVING year(transaction_date)=2020) AS p1) AS p2
+WHERE p2.count_rank <= 3;
+
+
+
